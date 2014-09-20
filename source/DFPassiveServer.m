@@ -40,7 +40,7 @@
         
         dispatch_queue_t passiveServerQueue = dispatch_queue_create("passive_server", nil);
         
-        self->listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:nil];
+        self->listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:passiveServerQueue];
         [self startListening];
     }
     
@@ -56,7 +56,9 @@
         self.host = [DFServer deviceIPAddress];
         self.port = listenPort;
         
-        self->listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:nil];
+        dispatch_queue_t passiveServerQueue = dispatch_queue_create("passive_server", nil);
+        
+        self->listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:passiveServerQueue];
         [self startListening];
     }
     
@@ -120,6 +122,9 @@
 
 - (void)writeData:(NSData *)data completionBlock:(void (^)())completionBlock
 {
+    
+}
+
 
 - (void)writeData
 {
