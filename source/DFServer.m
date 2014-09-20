@@ -287,17 +287,15 @@ static const int USER_LOGGED_IN = 230;
 
 + (NSString *)deviceIPAddress
 {
+    #if TARGET_IPHONE_SIMULATOR
+        return @"127.0.0.1";
+    #endif
+    
     NSString *address = @"error";
     struct ifaddrs *interfaces = NULL;
     struct ifaddrs *temp_addr = NULL;
     int success = 0;
-    
-    #if TARGET_IPHONE_SIMULATOR
-        // You might wanna change this line below depending on which network interface you use
-        NSString *networkInterface = @"en0";
-    #else
-        NSString *networkInterface = @"en0";
-    #endif
+    NSString *networkInterface = @"en0";
     
     // retrieve the current interfaces - returns 0 on success
     success = getifaddrs(&interfaces);
