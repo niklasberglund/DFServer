@@ -38,6 +38,8 @@
         self.returnData = data;
         self.completionBlock  = completionBlock;
         
+        dispatch_queue_t passiveServerQueue = dispatch_queue_create("passive_server", nil);
+        
         self->listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:nil];
         [self startListening];
     }

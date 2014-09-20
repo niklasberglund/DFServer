@@ -210,7 +210,11 @@ static const int USER_LOGGED_IN = 230;
 
 - (void)handlePASVCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
-    [self writeMessage:@"Entering Passive Mode (192,168,150,90,195,149)." withCode:ENTERING_PASSIVE_MODE toSocket:socket];
+    self->passiveServer = [DFPassiveServer spawnPassiveServer];
+    NSString *hostPortRepresentation = [self->passiveServer hostPortRepresentation];
+    
+    NSString *responseString = [NSString stringWithFormat:@"Entering Passive Mode (%@).", hostPortRepresentation];
+    [self writeMessage:responseString withCode:ENTERING_PASSIVE_MODE toSocket:socket];
 }
 
 
@@ -236,12 +240,12 @@ static const int USER_LOGGED_IN = 230;
     
     GCDAsyncSocket *portSocket = [[GCDAsyncSocket alloc] init];
     [portSocket connectToHost:portHost onPort:portPort error:nil];
-    NSMutableDictionary *userDataDict = (NSMutableDictionary *)socket.userData;
-    [userDataDict setValue:portSocket forKey:@"port_socket"];
+    //NSMutableDictionary *userDataDict = (NSMutableDictionary *)socket.userData;
+    //[userDataDict setValue:portSocket forKey:@"port_socket"];
     
-    NSLog(@"%@", userDataDict);
+    //NSLog(@"%@", userDataDict);
     
-    [self writeMessage:@"PORT command is successful" withCode:200 toSocket:socket];
+    [self writeMessage:@"PORT command is successful" withCode:200 toSocket:socket]; // currently not supported. TODO
 }
 
 
@@ -250,26 +254,20 @@ static const int USER_LOGGED_IN = 230;
     NSLog(@"LIST");
     NSString *stringListing = [self->fileSystemNavigator listForPath:@"/" error:nil];
     NSLog(@"%@", stringListing);
-    //[self writeMessage:@"Data connection accepted " withCode:150 toSocket:socket];
-    
-    //[self writeRawMessage:<#(NSString *)#> toSocket:<#(GCDAsyncSocket *)#>]
-    //[self writeRawMessage:stringListing toSocket:socket];
-    //[self writeMessage:@"Listing completed." withCode:226 toSocket:socket];
     
     [self writeMessage:@"Data connection accepted " withCode:150 toSocket:socket];
     
     NSData *returnData = [stringListing dataUsingEncoding:NSUTF8StringEncoding];
+    [self->passiveServer setReturnData:returnData];
     
-    [DFPassiveServer spawnPassiveServerForReturnData:returnData withCompletionBlock:^{
+    __weak typeof(self) weakSelf = self;
+    [self->passiveServer setCompletionBlock:^{
         NSLog(@"passive server sent data");
-        [self writeMessage:@"Listing completed." withCode:226 toSocket:socket];
+        [weakSelf writeMessage:@"Listing completed." withCode:226 toSocket:socket];
     }];
     
-    NSMutableDictionary *userDataDict = (NSMutableDictionary *)socket.userData;
-    GCDAsyncSocket *dataSocket = [userDataDict valueForKey:@"port_socket"];
-    
-    [self writeRawMessage:@"150 Data connection accepted from ip5.ip6.ip7.ip8:4279; transfer starting.\n         -rw-r—r— 1 ixl users 16 May 22 17:47 testfile.txt\n         226 Listing completed." toSocket:dataSocket];
-    [dataSocket disconnectAfterWriting];
+    //NSMutableDictionary *userDataDict = (NSMutableDictionary *)socket.userData;
+    //GCDAsyncSocket *dataSocket = [userDataDict valueForKey:@"port_socket"];
 }
 
 

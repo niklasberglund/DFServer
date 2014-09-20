@@ -33,6 +33,7 @@
     GCDAsyncSocket *listenSocket;
     NSMutableArray *sockets;
     DFFilesystemNavigator *fileSystemNavigator;
+    DFPassiveServer *passiveServer;
 }
 
 - (BOOL)startListening;
