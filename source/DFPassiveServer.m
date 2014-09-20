@@ -147,6 +147,8 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
+    NSLog(@"Passive server wrote data: %@", [[NSString alloc] initWithData:self.returnData encoding:NSUTF8StringEncoding]);
+    
     if (self.completionBlock) {
         self.completionBlock();
     }
