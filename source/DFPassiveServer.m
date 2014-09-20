@@ -121,6 +121,14 @@
 - (void)writeData:(NSData *)data completionBlock:(void (^)())completionBlock
 {
 
+- (void)writeData
+{
+    // data with CRLF ending
+    NSMutableData *data = [[NSMutableData alloc] init];
+    [data appendData:self.returnData];
+    [data appendData:[NSData dataWithBytes:"\x0D\x0A" length:2]]; // CRLF
+    
+    [self->clientSocket writeData:data withTimeout:60.0 tag:0];
 }
 
 
