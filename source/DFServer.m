@@ -259,6 +259,7 @@ static const int USER_LOGGED_IN = 230;
     
     NSData *returnData = [stringListing dataUsingEncoding:NSUTF8StringEncoding];
     [self->passiveServer setReturnData:returnData];
+    [self->passiveServer writeData];
     
     __weak typeof(self) weakSelf = self;
     [self->passiveServer setCompletionBlock:^{
