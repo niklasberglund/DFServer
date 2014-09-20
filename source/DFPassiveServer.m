@@ -46,6 +46,22 @@
 }
 
 
+- (id)initForPort:(int)listenPort
+{
+    self = [super init];
+    
+    if (self) {
+        self.host = [DFServer deviceIPAddress];
+        self.port = listenPort;
+        
+        self->listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:nil];
+        [self startListening];
+    }
+    
+    return self;
+}
+
+
 - (BOOL)startListening
 {
     NSError *startListeningError;
@@ -66,6 +82,18 @@
     static int port = 4200; // start here and keep incrementing
     
     DFPassiveServer *passiveServer = [[DFPassiveServer alloc] initForPort:port returnData:returnData completionBlock:completionBlock];
+    
+    port++;
+    
+    return passiveServer;
+}
+
+
++ (DFPassiveServer *)spawnPassiveServer
+{
+    static int port = 4200; // start here and keep incrementing
+    
+    DFPassiveServer *passiveServer = [[DFPassiveServer alloc] initForPort:port];
     
     port++;
     

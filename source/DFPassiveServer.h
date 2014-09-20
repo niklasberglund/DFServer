@@ -37,6 +37,7 @@
 @property (nonatomic, copy) void(^completionBlock)();
 
 + (DFPassiveServer *)spawnPassiveServerForReturnData:(NSData *)returnData withCompletionBlock:(void(^)())completionBlock;
++ (DFPassiveServer *)spawnPassiveServer;
 - (NSString *)hostPortRepresentation;
 - (void)writeData:(NSData *)data completionBlock:(void(^)())completionBlock;
 
