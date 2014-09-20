@@ -142,8 +142,6 @@
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
     self->clientSocket = newSocket;
-    
-    [newSocket writeData:self.returnData withTimeout:60.0 tag:0];
 }
 
 
