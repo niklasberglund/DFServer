@@ -61,9 +61,9 @@
         BOOL itemIsDirectory;
         [self->fileManager fileExistsAtPath:itemPath isDirectory:&itemIsDirectory];
         
-        NSString *modeString = @"dr-xr-xr-x";
+        NSString *modeString = @"-r-xr-xr-x";
         if (itemIsDirectory) {
-            modeString = @"-r-xr-xr-x";
+            modeString = @"dr-xr-xr-x";
         }
         
         NSDate *modificationDate = [fileAttributes valueForKey:@"NSFileModificationDate"];
