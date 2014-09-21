@@ -134,6 +134,7 @@
     [data appendData:[NSData dataWithBytes:"\x0D\x0A" length:2]]; // CRLF
     
     [self->clientSocket writeData:data withTimeout:60.0 tag:0];
+    [self->clientSocket disconnectAfterWriting];
 }
 
 
