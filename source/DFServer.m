@@ -31,6 +31,7 @@
 
 static const int REQUESTED_ACTION_COMPLETED = 200;
 static const int SYSTEM_TYPE = 215;
+static const int CLOSING_CONTROL_CONNECTION = 221;
 static const int ENTERING_PASSIVE_MODE = 227;
 static const int USER_LOGGED_IN = 230;
 
@@ -269,6 +270,13 @@ static const int USER_LOGGED_IN = 230;
     
     //NSMutableDictionary *userDataDict = (NSMutableDictionary *)socket.userData;
     //GCDAsyncSocket *dataSocket = [userDataDict valueForKey:@"port_socket"];
+}
+
+
+- (void)handleEXITCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
+{
+    [self writeMessage:@"Goodbye" withCode:CLOSING_CONTROL_CONNECTION toSocket:socket];
+    [socket disconnectAfterWriting];
 }
 
 
