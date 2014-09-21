@@ -214,7 +214,7 @@ static const int USER_LOGGED_IN = 230;
     self->passiveServer = [DFPassiveServer spawnPassiveServer];
     NSString *hostPortRepresentation = [self->passiveServer hostPortRepresentation];
     
-    NSString *responseString = [NSString stringWithFormat:@"Entering Passive Mode (%@).", hostPortRepresentation];
+    NSString *responseString = [NSString stringWithFormat:@"=%@", hostPortRepresentation];
     [self writeMessage:responseString withCode:ENTERING_PASSIVE_MODE toSocket:socket];
 }
 
