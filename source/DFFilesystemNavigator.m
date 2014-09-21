@@ -26,6 +26,19 @@
 
 @implementation DFFilesystemNavigator
 
+- (id)init
+{
+    self = [super init];
+    
+    if (self) {
+        self->fileManager = [[NSFileManager alloc] init];
+        [self->fileManager changeCurrentDirectoryPath:[[NSBundle mainBundle] bundlePath]];
+        NSLog(@"%@", self->currentFilesystemDir);
+    }
+    
+    return self;
+}
+
 - (NSString *)pwd
 {
     return @"/";
@@ -34,9 +47,51 @@
 
 - (NSString *)listForPath:(NSString *)path error:(NSError **)error
 {
-    NSString *list = @"drwxr-xr-x 1 owner group          1 Feb 21 04:37 test\ndrwxr-xr-x 1 owner group     129024 Feb 21 11:05 tardis.mp3";
+    NSMutableString *listString = [[NSMutableString alloc] init];
     
-    return list;
+    NSError *listingError;
+    
+    NSArray *items = [self->fileManager contentsOfDirectoryAtPath:[self->fileManager currentDirectoryPath] error:&listingError];
+    
+    for (NSString *item in items) {
+        NSString *itemPath = [NSString stringWithFormat:@"%@/%@", [self->fileManager currentDirectoryPath], item];
+        NSError *readAttributesError;
+        NSDictionary *fileAttributes = [self->fileManager attributesOfItemAtPath:item error:&readAttributesError];
+        
+        BOOL itemIsDirectory;
+        [self->fileManager fileExistsAtPath:itemPath isDirectory:&itemIsDirectory];
+        
+        NSString *modeString = @"dr-xr-xr-x";
+        if (itemIsDirectory) {
+            modeString = @"-r-xr-xr-x";
+        }
+        
+        NSDate *modificationDate = [fileAttributes valueForKey:@"NSFileModificationDate"];
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"MMM dd HH:mm"];
+        NSLog(@"%@", [dateFormatter stringFromDate:modificationDate]);
+        NSString *modificationDateString = [dateFormatter stringFromDate:modificationDate];
+        
+        long long itemSize = [[fileAttributes valueForKey:@"NSFileSize"] longLongValue];
+        
+        NSString *itemOwner = @"iosdevice";
+        NSString *itemGroup = @"group";
+        
+        NSString *listingLine = [NSString stringWithFormat:@"%@ 1 %@ %@\t\t%lld %@ %@\n", modeString, itemOwner, itemGroup, itemSize, modificationDateString, item];
+        [listString appendString:listingLine];
+    }
+    
+    NSLog(@"%@", listString);
+    
+    return listString;
+}
+
+
+- (BOOL)changeWorkingDirectory:(NSString *)directoryName
+{
+    NSString *newWorkingDirectory = [NSString stringWithFormat:@"%@/%@", self->currentFilesystemDir, directoryName];
+    
+    return [[NSFileManager defaultManager] changeCurrentDirectoryPath:newWorkingDirectory];
 }
 
 @end

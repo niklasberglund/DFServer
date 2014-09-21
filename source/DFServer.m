@@ -34,6 +34,8 @@ static const int SYSTEM_TYPE = 215;
 static const int CLOSING_CONTROL_CONNECTION = 221;
 static const int ENTERING_PASSIVE_MODE = 227;
 static const int USER_LOGGED_IN = 230;
+static const int REQUESTED_FILE_ACTION_OK = 250;
+static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 
 + (NSData *)LFData
 {
@@ -209,12 +211,28 @@ static const int USER_LOGGED_IN = 230;
 }
 
 
+- (void)handleCWDCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
+{
+    NSString *directoryName = arguments[0]; // no support for spaces at the moment. TODO
+    
+    BOOL success = [self->fileSystemNavigator changeWorkingDirectory:directoryName];
+    
+    if (success) {
+        [self writeMessage:@"CWD command successful. " withCode:REQUESTED_ACTION_COMPLETED toSocket:socket];
+    }
+    else {
+        [self writeMessage:@"Failed to change directory." withCode:REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE toSocket:socket];
+    }
+}
+
+
 - (void)handlePASVCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
     self->passiveServer = [DFPassiveServer spawnPassiveServer];
     NSString *hostPortRepresentation = [self->passiveServer hostPortRepresentation];
     
     NSString *responseString = [NSString stringWithFormat:@"=%@", hostPortRepresentation];
+    NSLog(@"PASV response: %@", responseString);
     [self writeMessage:responseString withCode:ENTERING_PASSIVE_MODE toSocket:socket];
 }
 
