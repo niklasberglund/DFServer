@@ -89,9 +89,9 @@
 
 - (BOOL)changeWorkingDirectory:(NSString *)directoryName
 {
-    NSString *newWorkingDirectory = [NSString stringWithFormat:@"%@/%@", self->currentFilesystemDir, directoryName];
+    NSString *newWorkingDirectory = [NSString stringWithFormat:@"%@%@", [self->fileManager currentDirectoryPath], directoryName];
     
-    return [[NSFileManager defaultManager] changeCurrentDirectoryPath:newWorkingDirectory];
+    return [self->fileManager changeCurrentDirectoryPath:newWorkingDirectory];
 }
 
 @end
