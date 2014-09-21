@@ -34,7 +34,7 @@
 
 - (NSString *)listForPath:(NSString *)path error:(NSError **)error
 {
-    NSString *list = @"drwxr-xr-x 1 owner group          1 Feb 21 04:37 test\rdrwxr-xr-x 1 owner group     129024 Feb 21 11:05 tardis.mp3";
+    NSString *list = @"drwxr-xr-x 1 owner group          1 Feb 21 04:37 test\ndrwxr-xr-x 1 owner group     129024 Feb 21 11:05 tardis.mp3";
     
     return list;
 }
