@@ -329,7 +329,6 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     
     NSString *beginMessage = [NSString stringWithFormat:@"Listing %@", target];
     NSString *responseString = [NSString stringWithFormat:@" type=%@;perm=r;size=%lld; %@", fileTypeString, fileSize, targetVirtualPath];
-    NSString *endMessage = @"";
     
     NSLog(@"%@", beginMessage);
     NSLog(@"%@", responseString);
@@ -337,10 +336,6 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     [self writeMessage:beginMessage withCode:250 begin:YES toSocket:socket];
     [self writeRawMessage:responseString toSocket:socket];
     [self writeMessage:@"End" withCode:250 toSocket:socket];
-    
-    
-    NSLog(@"%@", targetInfoDict);
-    NSLog(@"%@", targetFullPath);
 }
 
 - (void)handleSIZECommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
