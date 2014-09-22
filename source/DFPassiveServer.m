@@ -138,6 +138,11 @@
 }
 
 
+- (void)disconnect
+{
+    [self->clientSocket disconnect];
+}
+
 #pragma mark - GCDAsyncSocketDelegate methods
 
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket

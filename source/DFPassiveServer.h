@@ -41,5 +41,6 @@
 - (NSString *)hostPortRepresentation;
 - (void)writeData:(NSData *)data completionBlock:(void(^)())completionBlock;
 - (void)writeData;
+- (void)disconnect;
 
 @end

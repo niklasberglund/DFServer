@@ -303,10 +303,19 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     [self->passiveServer setCompletionBlock:^{
         NSLog(@"passive server sent data");
         [weakSelf writeMessage:@"Listing completed." withCode:226 toSocket:socket];
+        
+        [weakSelf stopPassiveServer];
     }];
     
     //NSMutableDictionary *userDataDict = (NSMutableDictionary *)socket.userData;
     //GCDAsyncSocket *dataSocket = [userDataDict valueForKey:@"port_socket"];
+}
+
+
+- (void)stopPassiveServer
+{
+    [self->passiveServer disconnect];
+    self->passiveServer = nil;
 }
 
 
