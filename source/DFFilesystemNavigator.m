@@ -94,4 +94,10 @@
     return [self->fileManager changeCurrentDirectoryPath:newWorkingDirectory];
 }
 
+
+- (NSString *)currentPath
+{
+    return [self->fileManager currentDirectoryPath];
+}
+
 @end

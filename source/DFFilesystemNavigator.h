@@ -33,5 +33,6 @@
 - (NSString *)pwd;
 - (NSString *)listForPath:(NSString *)path error:(NSError **)error;
 - (BOOL)changeWorkingDirectory:(NSString *)directoryName;
+- (NSString *)currentPath;
 
 @end
