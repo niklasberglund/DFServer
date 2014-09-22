@@ -319,6 +319,11 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     NSError *readAttributesError;
     NSDictionary *targetInfoDict = [[NSFileManager defaultManager] attributesOfItemAtPath:targetFullPath error:&readAttributesError];
     
+    if (readAttributesError) {
+        [self writeMessage:@"Seems like the file could not be found." withCode:REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE toSocket:socket];
+        return;
+    }
+    
     long long fileSize = [[targetInfoDict valueForKey:@"NSFileSize"] longLongValue];
     NSString *fileType = [targetInfoDict valueForKey:@"NSFileType"];
     NSString *fileTypeString = @"file";
@@ -345,6 +350,11 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     NSError *readAttributesError;
     NSDictionary *targetInfoDict = [[NSFileManager defaultManager] attributesOfItemAtPath:targetFullPath error:&readAttributesError];
     
+    if (readAttributesError) {
+        [self writeMessage:@"Seems like the file could not be found." withCode:REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE toSocket:socket];
+        return;
+    }
+    
     long long fileSize = [[targetInfoDict valueForKey:@"NSFileSize"] longLongValue];
     
     [self writeMessage:[NSString stringWithFormat:@"%lld", fileSize] withCode:FILE_STATUS toSocket:socket];
@@ -359,6 +369,11 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     NSString *targetFullPath = [NSString stringWithFormat:@"%@/%@", [self->fileSystemNavigator currentPath], target];
     NSError *readAttributesError;
     NSDictionary *targetInfoDict = [[NSFileManager defaultManager] attributesOfItemAtPath:targetFullPath error:&readAttributesError];
+    
+    if (readAttributesError) {
+        [self writeMessage:@"Seems like the file could not be found." withCode:REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE toSocket:socket];
+        return;
+    }
     
     NSDate *modificationDate = [targetInfoDict valueForKey:@"NSFileModificationDate"];
     NSDateFormatter *responseDateFormatter = [[NSDateFormatter alloc] init];
