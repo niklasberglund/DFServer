@@ -29,6 +29,9 @@
 
 @implementation DFServer
 
+static const int TRANSFER_MODE_ASCII = 0;
+static const int TRANSFER_MODE_BINARY = 1;
+
 static const int REQUESTED_ACTION_COMPLETED = 200;
 static const int FILE_STATUS = 213;
 static const int SYSTEM_TYPE = 215;
@@ -207,7 +210,22 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 
 - (void)handleTYPECommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
-    [self writeMessage:@"Pretending to care about TYPE" withCode:REQUESTED_ACTION_COMPLETED toSocket:socket];
+    NSString *modeIdentifier = [arguments objectAtIndex:0];
+    NSString *modeName;
+    
+    if ([modeIdentifier isEqualToString:@"A"]) {
+        self->transferMode = TRANSFER_MODE_ASCII;
+        modeName = @"ASCII";
+    }
+    else if ([modeIdentifier isEqualToString:@"I"]) {
+        self->transferMode = TRANSFER_MODE_BINARY;
+        modeName = @"BINARY";
+    }
+    else {
+        NSLog(@"Error: unknown TYPE identfier");
+    }
+    
+    [self writeMessage:[NSString stringWithFormat:@"Set type %@", modeName] withCode:REQUESTED_ACTION_COMPLETED toSocket:socket];
 }
 
 

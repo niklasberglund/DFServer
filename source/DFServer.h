@@ -34,6 +34,7 @@
     NSMutableArray *sockets;
     DFFilesystemNavigator *fileSystemNavigator;
     DFPassiveServer *passiveServer;
+    int transferMode; // transfer mode - ASCII or BINARY
 }
 
 - (BOOL)startListening;
