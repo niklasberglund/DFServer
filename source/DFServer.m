@@ -34,6 +34,7 @@ static const int TRANSFER_MODE_BINARY = 1;
 
 static const int FILE_STATUS_OK_ABOUT_TO_OPEN_DATA_CONNECTION = 150;
 static const int REQUESTED_ACTION_COMPLETED = 200;
+static const int SYSTEM_STATUS = 211;
 static const int FILE_STATUS = 213;
 static const int SYSTEM_TYPE = 215;
 static const int CLOSING_CONTROL_CONNECTION = 221;
@@ -41,6 +42,7 @@ static const int FILE_ACTION_SUCCESSFUL_CLOSING_CONNECTION = 226;
 static const int ENTERING_PASSIVE_MODE = 227;
 static const int USER_LOGGED_IN = 230;
 static const int REQUESTED_FILE_ACTION_OK = 250;
+static const int PATHNAME_CREATED = 257;
 static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 
 + (NSData *)LFData
@@ -196,14 +198,14 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 
 - (void)handleFEATCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
-    [self writeMessage:@"end" withCode:211 toSocket:socket]; // not listing any features
+    [self writeMessage:@"end" withCode:SYSTEM_STATUS toSocket:socket]; // not listing any features
 }
 
 
 - (void)handlePWDCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
     NSString *currentPath = [self->fileSystemNavigator pwd];
-    [self writeMessage:currentPath withCode:257 toSocket:socket];
+    [self writeMessage:currentPath withCode:PATHNAME_CREATED toSocket:socket];
 }
 
 
