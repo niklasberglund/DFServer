@@ -355,6 +355,23 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     [self writeMessage:[NSString stringWithFormat:@"%lld", fileSize] withCode:FILE_STATUS toSocket:socket];
 }
 
+/**
+ * Modification time. http://tools.ietf.org/html/rfc3659#section-3.3
+ */
+- (void)handleMDTMCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
+{
+    NSString *target = [arguments componentsJoinedByString:@" "];
+    NSString *targetFullPath = [NSString stringWithFormat:@"%@/%@", [self->fileSystemNavigator currentPath], target];
+    NSError *readAttributesError;
+    NSDictionary *targetInfoDict = [[NSFileManager defaultManager] attributesOfItemAtPath:targetFullPath error:&readAttributesError];
+    
+    NSDate *modificationDate = [targetInfoDict valueForKey:@"NSFileModificationDate"];
+    NSDateFormatter *responseDateFormatter = [[NSDateFormatter alloc] init];
+    [responseDateFormatter setDateFormat:@"yyyyMMddHHmm"];
+    
+    [self writeMessage:[responseDateFormatter stringFromDate:modificationDate] withCode:FILE_STATUS toSocket:socket];
+}
+
 
 - (void)handleEXITCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
