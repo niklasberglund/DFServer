@@ -100,4 +100,13 @@
     return [self->fileManager currentDirectoryPath];
 }
 
+
+- (NSString *)currentVirtualPath
+{
+    NSString *currentPath = [self currentPath];
+    NSString *rootPath = [[NSBundle mainBundle] bundlePath];
+    
+    return [currentPath substringFromIndex:rootPath.length];
+}
+
 @end

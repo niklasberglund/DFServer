@@ -34,5 +34,6 @@
 - (NSString *)listForPath:(NSString *)path error:(NSError **)error;
 - (BOOL)changeWorkingDirectory:(NSString *)directoryName;
 - (NSString *)currentPath;
+- (NSString *)currentVirtualPath;
 
 @end
