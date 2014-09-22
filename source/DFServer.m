@@ -32,10 +32,12 @@
 static const int TRANSFER_MODE_ASCII = 0;
 static const int TRANSFER_MODE_BINARY = 1;
 
+static const int FILE_STATUS_OK_ABOUT_TO_OPEN_DATA_CONNECTION = 150;
 static const int REQUESTED_ACTION_COMPLETED = 200;
 static const int FILE_STATUS = 213;
 static const int SYSTEM_TYPE = 215;
 static const int CLOSING_CONTROL_CONNECTION = 221;
+static const int FILE_ACTION_SUCCESSFUL_CLOSING_CONNECTION = 226;
 static const int ENTERING_PASSIVE_MODE = 227;
 static const int USER_LOGGED_IN = 230;
 static const int REQUESTED_FILE_ACTION_OK = 250;
@@ -357,6 +359,43 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     [responseDateFormatter setDateFormat:@"yyyyMMddHHmm"];
     
     [self writeMessage:[responseDateFormatter stringFromDate:modificationDate] withCode:FILE_STATUS toSocket:socket];
+}
+
+
+- (void)handleRETRCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
+{
+    NSString *target = [arguments componentsJoinedByString:@" "];
+    NSString *targetFullPath = [NSString stringWithFormat:@"%@/%@", [self->fileSystemNavigator currentPath], target];
+    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:targetFullPath];
+    
+    if (!fileExists) {
+        [self writeMessage:@"File doesn't exist" withCode:REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE toSocket:socket];
+        return;
+    }
+    
+    NSString *modeName;
+    if (self->transferMode == TRANSFER_MODE_ASCII) {
+        modeName = @"ASCII";
+    }
+    else if (self->transferMode == TRANSFER_MODE_BINARY) {
+        modeName = @"BINARY";
+    }
+    else {
+        NSLog(@"Error: no transfer mode set");
+    }
+    
+    NSString *beginMessage = [NSString stringWithFormat:@"Opening %@ mode data connection", modeName];
+    [self writeMessage:@"Opening BINARY mode data connection" withCode:FILE_STATUS_OK_ABOUT_TO_OPEN_DATA_CONNECTION toSocket:socket];
+    
+    NSData *fileData = [NSData dataWithContentsOfFile:targetFullPath];
+    [self->passiveServer setReturnData:fileData];
+    [self->passiveServer writeData];
+    
+    __weak typeof(self) weakSelf = self;
+    [self->passiveServer setCompletionBlock:^{
+        [weakSelf stopPassiveServer];
+        [weakSelf writeMessage:@"Transfer complete." withCode:FILE_ACTION_SUCCESSFUL_CLOSING_CONNECTION toSocket:socket];
+    }];
 }
 
 
