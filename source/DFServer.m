@@ -110,6 +110,13 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 }
 
 
+- (void)stopPassiveServer
+{
+    [self->passiveServer disconnect];
+    self->passiveServer = nil;
+}
+
+
 #pragma mark - write methods
 
 
@@ -277,13 +284,6 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     
     //NSMutableDictionary *userDataDict = (NSMutableDictionary *)socket.userData;
     //GCDAsyncSocket *dataSocket = [userDataDict valueForKey:@"port_socket"];
-}
-
-
-- (void)stopPassiveServer
-{
-    [self->passiveServer disconnect];
-    self->passiveServer = nil;
 }
 
 
