@@ -117,6 +117,24 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 }
 
 
+- (void)writeMessage:(NSString *)message withCode:(int)code begin:(BOOL)begin toSocket:(GCDAsyncSocket *)socket
+{
+    NSString *messageString;
+    
+    if (begin) {
+        messageString= [NSString stringWithFormat:@"%i- %@", code, message];
+    }
+    else {
+        messageString= [NSString stringWithFormat:@"%i %@", code, message];
+    }
+    
+    NSMutableData *messageData = [[messageString dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
+    [messageData appendData:[NSData dataWithBytes:"\x0D\x0A" length:2]];
+    
+    [socket writeData:messageData withTimeout:60.0 tag:0];
+}
+
+
 - (void)writeRawMessage:(NSString *)message toSocket:(GCDAsyncSocket *)socket
 {
     NSMutableData *messageData = [[message dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
