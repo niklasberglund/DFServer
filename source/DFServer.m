@@ -110,6 +110,9 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 }
 
 
+#pragma mark - write methods
+
+
 - (void)writeMessage:(NSString *)message withCode:(int)code toSocket:(GCDAsyncSocket *)socket
 {
     NSString *messageString = [NSString stringWithFormat:@"%i %@", code, message];
@@ -147,60 +150,7 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 }
 
 
-#pragma mark - delegate callbacks
-
-- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
-{
-    NSLog(@"Accepted socket %@", newSocket);
-    [self->sockets addObject:newSocket];
-    
-    NSString *responseString = @"200 Welcome to this _debug_ server\n";
-    [newSocket writeData:[responseString dataUsingEncoding:NSUTF8StringEncoding] withTimeout:60.0 tag:0];
-    [newSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:60.0 tag:0];
-}
-
-
-- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
-{
-    [self->sockets removeObject:sock];
-}
-
-
-- (void)socket:(GCDAsyncSocket *)socket didReadData:(NSData *)data withTag:(long)tag
-{
-    NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
-    NSString *lastCharacter = [dataString substringFromIndex:dataString.length-1];
-    
-    if ([lastCharacter isEqualToString:@"\n"] || [lastCharacter isEqualToString:@"\r"]) {
-        dataString = [dataString substringToIndex:dataString.length - 2];
-    }
-    
-    NSArray *components = [dataString componentsSeparatedByString:@" "];
-    NSString *command = [components firstObject];
-    NSArray *arguments;
-    
-    if (components.count > 1) {
-        arguments = [components subarrayWithRange:NSMakeRange(1, components.count - 1)];
-    }
-    else {
-        arguments = nil;
-    }
-    
-    NSLog(@"%@", dataString);
-    NSLog(@"%@", command);
-    
-    SEL handleCommandMethod = NSSelectorFromString([NSString stringWithFormat:@"handle%@CommandWithArguments:forSocket:", command]);
-    
-    if ([self respondsToSelector:handleCommandMethod]) {
-        [self performSelector:handleCommandMethod withObject:arguments withObject:socket];
-    }
-    else {
-        NSLog(@"Warning: unrecognized command '%@'", command);
-    }
-    
-    [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:60.0 tag:0];
-}
+#pragma mark - handle FTP commands
 
 - (void)handleUSERCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
@@ -417,6 +367,9 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 }
 
 
+#pragma mark - GCDAsyncSocket delegate methods
+
+
 - (void)socket:(GCDAsyncSocket *)sock didReadPartialDataOfLength:(NSUInteger)partialLength tag:(long)tag
 {
     NSLog(@"read partial data");
@@ -427,6 +380,62 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 {
     NSLog(@"Wrote data");
 }
+
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
+{
+    NSLog(@"Accepted socket %@", newSocket);
+    [self->sockets addObject:newSocket];
+    
+    NSString *responseString = @"200 Welcome to this _debug_ server\n";
+    [newSocket writeData:[responseString dataUsingEncoding:NSUTF8StringEncoding] withTimeout:60.0 tag:0];
+    [newSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:60.0 tag:0];
+}
+
+
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
+{
+    [self->sockets removeObject:sock];
+}
+
+
+- (void)socket:(GCDAsyncSocket *)socket didReadData:(NSData *)data withTag:(long)tag
+{
+    NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    NSString *lastCharacter = [dataString substringFromIndex:dataString.length-1];
+    
+    if ([lastCharacter isEqualToString:@"\n"] || [lastCharacter isEqualToString:@"\r"]) {
+        dataString = [dataString substringToIndex:dataString.length - 2];
+    }
+    
+    NSArray *components = [dataString componentsSeparatedByString:@" "];
+    NSString *command = [components firstObject];
+    NSArray *arguments;
+    
+    if (components.count > 1) {
+        arguments = [components subarrayWithRange:NSMakeRange(1, components.count - 1)];
+    }
+    else {
+        arguments = nil;
+    }
+    
+    NSLog(@"%@", dataString);
+    NSLog(@"%@", command);
+    
+    SEL handleCommandMethod = NSSelectorFromString([NSString stringWithFormat:@"handle%@CommandWithArguments:forSocket:", command]);
+    
+    if ([self respondsToSelector:handleCommandMethod]) {
+        [self performSelector:handleCommandMethod withObject:arguments withObject:socket];
+    }
+    else {
+        NSLog(@"Warning: unrecognized command '%@'", command);
+    }
+    
+    [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:60.0 tag:0];
+}
+
+
+#pragma mark - helpers
 
 
 + (NSString *)deviceIPAddress
