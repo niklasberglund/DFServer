@@ -30,6 +30,7 @@
 @implementation DFServer
 
 static const int REQUESTED_ACTION_COMPLETED = 200;
+static const int FILE_STATUS = 213;
 static const int SYSTEM_TYPE = 215;
 static const int CLOSING_CONTROL_CONNECTION = 221;
 static const int ENTERING_PASSIVE_MODE = 227;
@@ -340,6 +341,18 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
     
     NSLog(@"%@", targetInfoDict);
     NSLog(@"%@", targetFullPath);
+}
+
+- (void)handleSIZECommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
+{
+    NSString *target = [arguments componentsJoinedByString:@" "];
+    NSString *targetFullPath = [NSString stringWithFormat:@"%@/%@", [self->fileSystemNavigator currentPath], target];
+    NSError *readAttributesError;
+    NSDictionary *targetInfoDict = [[NSFileManager defaultManager] attributesOfItemAtPath:targetFullPath error:&readAttributesError];
+    
+    long long fileSize = [[targetInfoDict valueForKey:@"NSFileSize"] longLongValue];
+    
+    [self writeMessage:[NSString stringWithFormat:@"%lld", fileSize] withCode:FILE_STATUS toSocket:socket];
 }
 
 
