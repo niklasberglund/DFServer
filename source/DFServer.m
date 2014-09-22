@@ -309,6 +309,40 @@ static const int REQUESTED_ACTION_NOT_TAKEN_FILE_UNAVAILABLE = 550;
 }
 
 
+- (void)handleMLSTCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
+{
+    NSString *target = [arguments componentsJoinedByString:@" "];
+    NSString *targetFullPath = [NSString stringWithFormat:@"%@/%@", [self->fileSystemNavigator currentPath], target];
+    NSString *targetVirtualPath = [NSString stringWithFormat:@"%@/%@", [self->fileSystemNavigator currentVirtualPath], target];
+    
+    NSError *readAttributesError;
+    NSDictionary *targetInfoDict = [[NSFileManager defaultManager] attributesOfItemAtPath:targetFullPath error:&readAttributesError];
+    
+    long long fileSize = [[targetInfoDict valueForKey:@"NSFileSize"] longLongValue];
+    NSString *fileType = [targetInfoDict valueForKey:@"NSFileType"];
+    NSString *fileTypeString = @"file";
+    if ([fileType isEqualToString:NSFileTypeDirectory]) {
+        fileTypeString = @"dir";
+    }
+    
+    
+    NSString *beginMessage = [NSString stringWithFormat:@"Listing %@", target];
+    NSString *responseString = [NSString stringWithFormat:@" type=%@;perm=r;size=%lld; %@", fileTypeString, fileSize, targetVirtualPath];
+    NSString *endMessage = @"";
+    
+    NSLog(@"%@", beginMessage);
+    NSLog(@"%@", responseString);
+    
+    [self writeMessage:beginMessage withCode:250 begin:YES toSocket:socket];
+    [self writeRawMessage:responseString toSocket:socket];
+    [self writeMessage:@"End" withCode:250 toSocket:socket];
+    
+    
+    NSLog(@"%@", targetInfoDict);
+    NSLog(@"%@", targetFullPath);
+}
+
+
 - (void)handleEXITCommandWithArguments:(NSArray *)arguments forSocket:(GCDAsyncSocket *)socket
 {
     [self writeMessage:@"Goodbye" withCode:CLOSING_CONTROL_CONNECTION toSocket:socket];
