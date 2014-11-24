@@ -29,6 +29,7 @@ self->debugFtpServer = [[DFServer alloc] init]; // self->debugFtpServer is an ob
 ```
 
 ### Run only in debug builds (highly recommended) ###
+Same as above example, but wrapped in `#ifdef DEBUG` like this:
 ```objc
 #import "DFServer.h"
 
