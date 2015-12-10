@@ -11,11 +11,6 @@ Download DFServer and add all files under the `source` directory to your project
 ```
 ### Through Cocoapods ###
 **Not on Cocoapods quite yet. For now use the manual install method.**
-Add `pod 'DFServer'` to your project's Podfile, and run
-
-```sh
-$ pod install
-```
 
 ## Examples ##
 Note that you import DFServer with `#import <DFServer.h>` if you installed with CocoaPods, but if you installed it manually it's `#import "DFServer.h"`.
